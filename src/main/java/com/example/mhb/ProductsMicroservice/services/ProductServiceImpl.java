@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.example.mhb.ProductsMicroservice.model.CreateProductRestModel;
+import com.example.mhb.core.ProductCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
