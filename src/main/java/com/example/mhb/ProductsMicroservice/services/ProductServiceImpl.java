@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.example.mhb.ProductsMicroservice.model.CreateProductRestModel;
 import com.example.mhb.core.ProductCreatedEvent;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -48,8 +49,13 @@ public class ProductServiceImpl implements ProductService {
 		ProductCreatedEvent productCreatedEvent = new ProductCreatedEvent(productId, productRestModel.getTitle(),
 				productRestModel.getPrice(), productRestModel.getQuantity());
 		LOGGER.info("Before publishing a ProductCreatedEvent");
+
+		ProducerRecord<String, ProductCreatedEvent> producerRecord = new ProducerRecord<>("product-created-event-topic",productId,productCreatedEvent);
+//		producerRecord.headers().add("messageId", "123".getBytes()); // test duplicate messageId
+		producerRecord.headers().add("messageId", UUID.randomUUID().toString().getBytes()); // same productId or separate UUID.randomUUID().toString().getBytes() both can be used as unique messageId
+
 		SendResult<String, ProductCreatedEvent> result =
-				kafkaTemplate.send("product-created-event-topic", productId, productCreatedEvent).get();
+				kafkaTemplate.send(producerRecord).get();
 		LOGGER.info("Partition: "+result.getRecordMetadata().partition());
 		LOGGER.info("Topic: "+result.getRecordMetadata().topic());
 		LOGGER.info("Offset: "+result.getRecordMetadata().offset());
